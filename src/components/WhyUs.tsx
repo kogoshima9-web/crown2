@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 const TESTIMONIAL_IMAGES = [
-  "https://storage.googleapis.com/static-content-prod/file-uploads/azgoederbfazp5qbfqdxav/1744426415000-835694.png",
-  "https://storage.googleapis.com/static-content-prod/file-uploads/azgoederbfazp5qbfqdxav/1744426419000-845627.png",
-  "https://storage.googleapis.com/static-content-prod/file-uploads/azgoederbfazp5qbfqdxav/1744426419000-845628.png",
-  "https://storage.googleapis.com/static-content-prod/file-uploads/azgoederbfazp5qbfqdxav/1744426419000-845629.png"
+  "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/2.jpg",
+  "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/3.jpg",
+  "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/4.jpg",
+  "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/5.jpg"
 ];
 
 export default function WhyUs() {
@@ -83,12 +83,6 @@ export default function WhyUs() {
                   referrerPolicy="no-referrer"
                 />
               </AnimatePresence>
-              
-              {/* Overlay Label */}
-              <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-sm p-4 border border-gray-100">
-                <p className="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-1">Customer Story</p>
-                <p className="text-sm font-medium text-gray-900">Verified Purchase • Real Results</p>
-              </div>
             </div>
             
             {/* Decorative Background Element */}

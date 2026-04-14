@@ -162,12 +162,12 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
             </div>
 
             {/* Right Side: Order Form or Success Message */}
-            <div className="w-full md:w-1/2 p-6 md:p-10 overflow-y-auto flex items-center justify-center">
+            <div className="w-full md:w-1/2 p-6 md:p-8 overflow-y-auto bg-white">
               {isSuccess ? (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="text-center space-y-6 py-12"
+                  className="text-center space-y-6 py-12 h-full flex flex-col items-center justify-center"
                 >
                   <div className="flex justify-center">
                     <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
@@ -180,206 +180,165 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                   </div>
                   <Button 
                     onClick={handleClose}
-                    className="w-full h-14 bg-black text-white hover:bg-gray-900 rounded-none text-lg font-bold"
+                    className="w-full max-w-xs h-14 bg-black text-white hover:bg-gray-900 rounded-none text-lg font-bold"
                   >
                     إغلاق
                   </Button>
                 </motion.div>
               ) : (
-                <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-8 w-full">
-                  <div className="text-center space-y-2">
+                <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-lg mx-auto">
+                  <div className="text-center space-y-1">
                     <h2 className="text-2xl font-bold tracking-tight text-gray-900 uppercase">استمارة الطلب</h2>
-                    <p className="text-sm text-gray-500 font-medium">Order Form</p>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Order Information</p>
                   </div>
 
                   {/* Quantity Selector */}
-                  <div className="flex items-center border border-gray-200 rounded-md overflow-hidden h-12">
-                    <button 
-                      type="button"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-12 h-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors border-r border-gray-200"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <div className="flex-1 h-full flex items-center justify-center font-bold text-lg">
-                      {quantity}
+                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center justify-between">
+                    <span className="text-sm font-bold text-gray-700">الكمية / Quantity</span>
+                    <div className="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden h-10">
+                      <button 
+                        type="button"
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="w-10 h-full flex items-center justify-center hover:bg-gray-50 transition-colors border-r border-gray-200"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <div className="w-12 h-full flex items-center justify-center font-bold text-sm">
+                        {quantity}
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="w-10 h-full flex items-center justify-center hover:bg-gray-50 transition-colors border-l border-gray-200"
+                      >
+                        <Plus size={14} />
+                      </button>
                     </div>
-                    <button 
-                      type="button"
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="w-12 h-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors border-l border-gray-200"
-                    >
-                      <Plus size={16} />
-                    </button>
                   </div>
 
                   {/* Form Fields */}
                   <div className="space-y-4 text-right" dir="rtl">
-                    <div className="space-y-2">
-                      <Label className="text-[13px] font-bold text-gray-700">الإسم الكامل *</Label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50">
-                          <User size={18} className="text-gray-400" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-[12px] font-bold text-gray-600 mr-1">الإسم الكامل *</Label>
+                        <div className="relative">
+                          <Input 
+                            required
+                            value={formData.customer_name}
+                            onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
+                            placeholder="Nom complet" 
+                            className="h-11 rounded-lg border-gray-200 focus-visible:ring-black bg-gray-50/50" 
+                          />
                         </div>
-                        <Input 
-                          required
-                          value={formData.customer_name}
-                          onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
-                          placeholder="Nom complet" 
-                          className="pr-14 h-12 rounded-none border-gray-200 focus-visible:ring-black" 
-                        />
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-[13px] font-bold text-gray-700">الهاتف *</Label>
-                      <div className="flex gap-0">
-                        <div className="relative w-32">
-                          <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50">
-                            <Phone size={18} className="text-gray-400" />
-                          </div>
-                          <div className="pr-14 h-12 flex items-center justify-center border border-gray-200 bg-gray-50 text-sm font-medium">
-                            DZ +213
-                          </div>
-                        </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[12px] font-bold text-gray-600 mr-1">رقم الهاتف *</Label>
                         <Input 
                           required
                           value={formData.phone_number}
                           onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
-                          placeholder="Numéro de téléphone" 
-                          className="flex-1 h-12 rounded-none border-gray-200 border-r-0 focus-visible:ring-black" 
+                          placeholder="05 / 06 / 07" 
+                          className="h-11 rounded-lg border-gray-200 focus-visible:ring-black bg-gray-50/50" 
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-[13px] font-bold text-gray-700">الولاية *</Label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50 z-10 pointer-events-none">
-                          <MapPin size={18} className="text-gray-400" />
-                        </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-[12px] font-bold text-gray-600 mr-1">الولاية *</Label>
                         <select 
                           required
-                          className="w-full pr-14 h-12 rounded-none border border-gray-200 focus:ring-1 focus:ring-black outline-none bg-white text-right appearance-none"
+                          className="w-full h-11 rounded-lg border border-gray-200 focus:ring-1 focus:ring-black outline-none bg-gray-50/50 px-3 text-right appearance-none"
                           value={formData.wilaya}
                           onChange={(e) => setFormData({...formData, wilaya: e.target.value})}
-                          dir="rtl"
                         >
-                          <option value="" disabled>الولاية</option>
+                          <option value="" disabled>اختر الولاية</option>
                           {WILAYAS.map(w => (
                             <option key={w} value={w}>{w}</option>
                           ))}
                         </select>
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-[13px] font-bold text-gray-700">البلدية *</Label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50 z-10">
-                          <Building2 size={18} className="text-gray-400" />
-                        </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[12px] font-bold text-gray-600 mr-1">البلدية *</Label>
                         <Input 
                           required
                           value={formData.baladia}
                           onChange={(e) => setFormData({...formData, baladia: e.target.value})}
-                          placeholder="Baladia" 
-                          className="pr-14 h-12 rounded-none border-gray-200 focus-visible:ring-black" 
+                          placeholder="Commune" 
+                          className="h-11 rounded-lg border-gray-200 focus-visible:ring-black bg-gray-50/50" 
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-[13px] font-bold text-gray-700">العنوان</Label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50">
-                          <MapPin size={18} className="text-gray-400" />
-                        </div>
-                        <Input 
-                          value={formData.address}
-                          onChange={(e) => setFormData({...formData, address: e.target.value})}
-                          placeholder="Adresse de Livraison" 
-                          className="pr-14 h-12 rounded-none border-gray-200 focus-visible:ring-black" 
-                        />
-                      </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[12px] font-bold text-gray-600 mr-1">العنوان بالتفصيل</Label>
+                      <Input 
+                        value={formData.address}
+                        onChange={(e) => setFormData({...formData, address: e.target.value})}
+                        placeholder="Adresse exacte" 
+                        className="h-11 rounded-lg border-gray-200 focus-visible:ring-black bg-gray-50/50" 
+                      />
                     </div>
 
-                    {/* Delivery Options Section */}
+                    {/* Delivery Options */}
                     {formData.wilaya && (
                       <motion.div 
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        className="space-y-4 pt-4 border-t border-gray-100"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-3 pt-2"
                       >
-                        <div className="flex items-center gap-2 font-bold text-gray-900">
-                          <Truck size={18} />
-                          <span>التوصيل</span>
-                        </div>
+                        <Label className="text-[12px] font-bold text-gray-600 mr-1 flex items-center gap-2">
+                          <Truck size={14} />
+                          <span>نوع التوصيل / Type de livraison *</span>
+                        </Label>
                         
-                        <div className="space-y-3">
-                          <label 
-                            className={`flex items-center justify-between p-4 border cursor-pointer transition-all ${
-                              deliveryType === 'home' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-300'
-                            }`}
+                        <div className="grid grid-cols-2 gap-3">
+                          <button 
+                            type="button"
                             onClick={() => setDeliveryType('home')}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                deliveryType === 'home' ? 'border-black' : 'border-gray-300'
-                              }`}>
-                                {deliveryType === 'home' && <div className="w-2.5 h-2.5 bg-black rounded-full" />}
-                              </div>
-                              <span className="font-medium">توصيل منزلي</span>
-                            </div>
-                            <span className="font-bold">{getDeliveryPrice(formData.wilaya, 'home').toLocaleString()} DA</span>
-                          </label>
-
-                          <label 
-                            className={`flex items-center justify-between p-4 border cursor-pointer transition-all ${
-                              deliveryType === 'office' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-300'
+                            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${
+                              deliveryType === 'home' ? 'border-black bg-black text-white' : 'border-gray-100 bg-gray-50 hover:border-gray-200'
                             }`}
-                            onClick={() => setDeliveryType('office')}
                           >
-                            <div className="flex items-center gap-3">
-                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                deliveryType === 'office' ? 'border-black' : 'border-gray-300'
-                              }`}>
-                                {deliveryType === 'office' && <div className="w-2.5 h-2.5 bg-black rounded-full" />}
-                              </div>
-                              <span className="font-medium">توصيل للمكتب</span>
-                            </div>
-                            <span className="font-bold">{getDeliveryPrice(formData.wilaya, 'office').toLocaleString()} DA</span>
-                          </label>
+                            <span className="text-sm font-bold">توصيل للمنزل</span>
+                            <span className={`text-[11px] ${deliveryType === 'home' ? 'text-gray-300' : 'text-gray-500'}`}>
+                              {getDeliveryPrice(formData.wilaya, 'home')} DA
+                            </span>
+                          </button>
+
+                          <button 
+                            type="button"
+                            onClick={() => setDeliveryType('office')}
+                            className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${
+                              deliveryType === 'office' ? 'border-black bg-black text-white' : 'border-gray-100 bg-gray-50 hover:border-gray-200'
+                            }`}
+                          >
+                            <span className="text-sm font-bold">توصيل للمكتب</span>
+                            <span className={`text-[11px] ${deliveryType === 'office' ? 'text-gray-300' : 'text-gray-500'}`}>
+                              {getDeliveryPrice(formData.wilaya, 'office')} DA
+                            </span>
+                          </button>
                         </div>
                       </motion.div>
                     )}
                   </div>
 
-                  {/* Summary Box */}
-                  <div className="bg-gray-50 p-6 space-y-4 border border-gray-100">
-                    <div className="flex justify-between items-center text-sm">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <ShoppingCart size={16} />
-                        <span>سعر المنتج</span>
-                      </div>
-                      <span className="font-bold">{(numericPrice * quantity).toLocaleString()} DA</span>
+                  {/* Order Summary */}
+                  <div className="bg-gray-900 text-white p-6 rounded-2xl space-y-3 shadow-xl">
+                    <div className="flex justify-between items-center text-xs text-gray-400 font-medium uppercase tracking-wider">
+                      <span>Subtotal</span>
+                      <span>{(numericPrice * quantity).toLocaleString()} DA</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Truck size={16} />
-                        <span>سعر التوصيل</span>
-                      </div>
-                      <span className={`${deliveryType ? 'text-red-600' : 'text-gray-400'} font-bold`}>
-                        {deliveryType ? `${currentDeliveryPrice.toLocaleString()} DA` : "--"}
-                      </span>
+                    <div className="flex justify-between items-center text-xs text-gray-400 font-medium uppercase tracking-wider">
+                      <span>Delivery</span>
+                      <span>{deliveryType ? `${currentDeliveryPrice.toLocaleString()} DA` : "--"}</span>
                     </div>
-                    <div className="pt-4 border-t border-gray-200 flex justify-between items-center">
-                      <div className="flex items-center gap-2 font-bold text-gray-900">
-                        <Calculator size={18} />
-                        <span>المجموع</span>
-                      </div>
-                      <span className="text-xl font-black text-gray-900">
-                        {deliveryType ? `${total.toLocaleString()} DA` : "--"}
+                    <div className="pt-3 border-t border-white/10 flex justify-between items-center">
+                      <span className="text-lg font-bold">Total</span>
+                      <span className="text-2xl font-black text-white">
+                        {deliveryType ? `${total.toLocaleString()} DA` : `${(numericPrice * quantity).toLocaleString()} DA`}
                       </span>
                     </div>
                   </div>
@@ -388,14 +347,16 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                   <Button 
                     disabled={isSubmitting}
                     type="submit"
-                    className="w-full h-14 bg-black text-white hover:bg-gray-900 rounded-none text-lg font-bold flex items-center justify-center gap-3 group"
+                    className="w-full h-14 bg-black text-white hover:bg-gray-800 rounded-xl text-lg font-bold flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
                   >
                     {isSubmitting ? (
                       <Loader2 className="animate-spin" size={20} />
                     ) : (
-                      <ShoppingBag size={20} className="group-hover:scale-110 transition-transform" />
+                      <>
+                        <ShoppingBag size={20} />
+                        <span>تأكيد الطلب / Confirmer</span>
+                      </>
                     )}
-                    <span>إشتري الآن</span>
                   </Button>
                 </form>
               )}

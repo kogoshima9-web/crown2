@@ -25,7 +25,7 @@ function HomePage() {
       setSelectedProduct({
         name: "Crown Skincare Collection",
         price: "300 DA",
-        image: "https://storage.googleapis.com/static-content-prod/file-uploads/azgoederbfazp5qbfqdxav/1744425692000-859737.png",
+        image: "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/prodect.png",
         description: "Complete natural goat milk skincare set"
       });
     }

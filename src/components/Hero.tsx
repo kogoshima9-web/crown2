@@ -1,57 +1,67 @@
 import { motion } from "motion/react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Beaker, ShieldCheck, Leaf, Globe } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface HeroProps {
   onBuyNow: () => void;
 }
 
 export default function Hero({ onBuyNow }: HeroProps) {
-  return (
-    <section className="relative w-full min-h-[600px] lg:h-[700px] bg-[#F2F2F2] overflow-hidden flex items-center py-12 lg:py-0">
-      {/* Background Gradient/Softness */}
-      <div className="absolute inset-0 bg-gradient-to-r from-gray-200/50 to-transparent" />
+  const [heroImage, setHeroImage] = useState("https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/Gemini_Generated_Image_7f0nor7f0nor7f0n.png");
+
+  useEffect(() => {
+    async function fetchHeroImage() {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'hero_image_url')
+        .single();
       
-      <div className="max-w-7xl mx-auto px-4 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-0 items-center relative z-10">
-        {/* Text Content */}
+      if (!error && data) {
+        setHeroImage(data.value);
+      }
+    }
+    fetchHeroImage();
+  }, []);
+
+  return (
+    <section className="relative w-full min-h-screen lg:min-h-[750px] bg-white overflow-hidden flex items-center py-8 lg:py-0">
+      <div className="max-w-7xl mx-auto px-4 w-full flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-12 items-center relative z-10">
+        
+        {/* Product Image - Top on Mobile, Right on Desktop */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+          className="w-full flex justify-center lg:justify-end order-1 lg:order-2"
+        >
+          <div className="relative w-full max-w-[340px] md:max-w-[450px] lg:max-w-[500px] aspect-square bg-[#F8F9FA] rounded-[32px] lg:rounded-[40px] shadow-2xl flex items-center justify-center p-8 lg:p-12 overflow-hidden">
+            <img 
+              src={heroImage} 
+              alt="Crown Skincare Collection"
+              className="w-full h-full object-contain drop-shadow-xl transform hover:scale-105 transition-transform duration-700"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        </motion.div>
+
+        {/* Content - Bottom on Mobile, Left on Desktop */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="space-y-6 text-center lg:text-left"
+          className="w-full space-y-6 lg:space-y-8 text-center lg:text-left order-2 lg:order-1"
         >
-          <div className="space-y-2">
-            <p className="text-[12px] font-semibold tracking-[0.2em] text-gray-500 uppercase">
-              Perfected by Nature. Made for You.
-            </p>
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gray-900 leading-[1.1]">
-              Crown <br /> Skincare
-            </h2>
-            <div className="space-y-2 pt-4 flex flex-col items-center lg:items-start">
-              <p className="text-[13px] md:text-[14px] font-medium text-gray-600 flex items-center gap-2">
-                <span>🔬</span> Science designed for your Skin/Hair/Body
-              </p>
-              <p className="text-[13px] md:text-[14px] font-medium text-gray-600 flex items-center gap-2">
-                <span>🥼</span> Dermatologist-approved
-              </p>
-              <p className="text-[13px] md:text-[14px] font-medium text-gray-600 flex items-center gap-2">
-                <span>💧</span> 99% Natural
-              </p>
-              <p className="text-[13px] md:text-[14px] font-medium text-gray-600 flex items-center gap-2">
-                <span>🇩🇿</span> 100% Algerian
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap justify-center lg:justify-start items-center gap-6 pt-4">
-            <div className="flex flex-col items-center lg:items-start">
-              <span className="text-2xl md:text-3xl font-bold text-gray-900">300 DA</span>
-              <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Limited Offer</span>
-            </div>
-            <div className="flex gap-4">
+          {/* Price & Buttons - Priority on Mobile */}
+          <div className="flex flex-col items-center lg:items-start gap-4 lg:order-last">
+            <div className="text-4xl lg:text-5xl font-bold text-gray-900">300 DA</div>
+            <div className="flex gap-3 w-full lg:w-auto">
               <Button 
                 onClick={onBuyNow}
-                className="bg-white text-black hover:bg-gray-100 h-12 px-8 rounded-none text-[12px] font-bold tracking-widest uppercase border border-white shadow-sm cursor-pointer"
+                className="flex-1 lg:flex-none bg-black text-white hover:bg-gray-800 h-14 px-8 lg:px-10 rounded-none text-[12px] font-bold tracking-widest uppercase cursor-pointer"
               >
                 Buy Now
               </Button>
@@ -59,33 +69,46 @@ export default function Hero({ onBuyNow }: HeroProps) {
                 href="#why-us"
                 className={cn(
                   buttonVariants({ variant: "outline" }),
-                  "bg-transparent text-gray-900 border-gray-900 hover:bg-gray-900 hover:text-white h-12 px-8 rounded-none text-[12px] font-bold tracking-widest uppercase cursor-pointer flex items-center justify-center"
+                  "flex-1 lg:flex-none bg-transparent text-gray-900 border-gray-900 hover:bg-gray-900 hover:text-white h-14 px-8 lg:px-10 rounded-none text-[12px] font-bold tracking-widest uppercase cursor-pointer flex items-center justify-center"
                 )}
               >
                 Why Us
               </a>
             </div>
           </div>
-        </motion.div>
 
-        {/* Product Image */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-          className="flex justify-center lg:justify-end relative"
-        >
-          <div className="relative w-full max-w-[400px] lg:max-w-[500px] aspect-square">
-            <img 
-              src="https://storage.googleapis.com/static-content-prod/file-uploads/azgoederbfazp5qbfqdxav/1744425692000-859737.png" 
-              alt="Crown Skincare Collection"
-              className="w-full h-full object-contain drop-shadow-2xl"
-              referrerPolicy="no-referrer"
-            />
-            {/* Floating elements to mimic the "pro" look */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-white/20 blur-3xl rounded-full -z-10" />
+          {/* Heading & Badge */}
+          <div className="space-y-3 lg:space-y-4">
+            <span className="inline-block bg-[#D1E9FF] text-[#007AFF] px-4 py-1 text-[10px] lg:text-[11px] font-bold tracking-wider uppercase rounded-sm">
+              New Arrival
+            </span>
+            <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gray-900 leading-tight">
+              Crown Skincare
+            </h2>
+            <p className="text-[11px] lg:text-[12px] font-bold tracking-[0.2em] text-gray-500 uppercase">
+              Perfected by Nature. Made for You.
+            </p>
+          </div>
+
+          {/* Features - Lower priority on mobile */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 lg:gap-4 pt-2">
+            {[
+              { icon: Beaker, text: "Science designed for your Skin/Hair/Body" },
+              { icon: ShieldCheck, text: "Dermatologist-approved" },
+              { icon: Leaf, text: "99% Natural" },
+              { icon: Globe, text: "100% Algerian" },
+            ].map((item, index) => (
+              <div key={index} className="flex items-center gap-3 lg:gap-4 justify-center lg:justify-start">
+                <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 shrink-0">
+                  <item.icon size={16} className="lg:hidden" />
+                  <item.icon size={20} className="hidden lg:block" />
+                </div>
+                <span className="text-[13px] lg:text-[14px] font-medium text-gray-600 text-left">{item.text}</span>
+              </div>
+            ))}
           </div>
         </motion.div>
+
       </div>
     </section>
   );

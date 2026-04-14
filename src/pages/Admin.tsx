@@ -63,12 +63,14 @@ interface Product {
 }
 
 export default function Admin() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'sales'>('sales');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'sales' | 'settings'>('sales');
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSavingProduct, setIsSavingProduct] = useState(false);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [heroImageUrl, setHeroImageUrl] = useState("https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/Gemini_Generated_Image_7f0nor7f0nor7f0n.png");
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
@@ -80,6 +82,7 @@ export default function Admin() {
   useEffect(() => {
     fetchOrders();
     fetchProducts();
+    fetchSettings();
 
     // Set up real-time listener for new orders
     const ordersChannel = supabase
@@ -124,6 +127,37 @@ export default function Admin() {
     } else {
       setProducts(data || []);
     }
+  }
+
+  async function fetchSettings() {
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('*')
+      .eq('key', 'hero_image_url')
+      .single();
+
+    if (error) {
+      console.error('Error fetching settings:', error);
+    } else if (data) {
+      setHeroImageUrl(data.value);
+    }
+  }
+
+  async function handleUpdateSettings(e: React.FormEvent) {
+    e.preventDefault();
+    setIsSavingSettings(true);
+    
+    const { error } = await supabase
+      .from('site_settings')
+      .upsert({ key: 'hero_image_url', value: heroImageUrl }, { onConflict: 'key' });
+
+    if (error) {
+      console.error('Error updating settings:', error);
+      alert('Error updating settings. Make sure the "site_settings" table exists.');
+    } else {
+      alert('Settings updated successfully!');
+    }
+    setIsSavingSettings(false);
   }
 
   async function handleAddProduct(e: React.FormEvent) {
@@ -238,6 +272,13 @@ export default function Admin() {
           >
             <ShoppingBag size={18} />
             Sales
+          </button>
+          <button 
+            onClick={() => setActiveTab('settings')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+          >
+            <Settings size={18} />
+            Settings
           </button>
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100">
             <Users size={18} />
@@ -547,6 +588,47 @@ export default function Admin() {
                   <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
                 </div>
               ))}
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="space-y-6 max-w-2xl">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">Site Settings</h3>
+                <p className="text-sm text-gray-500">Configure global website elements.</p>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl border border-gray-200 space-y-6">
+                <form onSubmit={handleUpdateSettings} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Hero Section Image URL</Label>
+                    <div className="flex gap-4">
+                      <Input 
+                        value={heroImageUrl}
+                        onChange={(e) => setHeroImageUrl(e.target.value)}
+                        placeholder="https://..." 
+                        className="flex-1"
+                      />
+                      <div className="w-12 h-12 bg-gray-50 rounded border border-gray-100 overflow-hidden flex items-center justify-center">
+                        {heroImageUrl ? (
+                          <img src={heroImageUrl} alt="Preview" className="w-full h-full object-contain" />
+                        ) : (
+                          <ShoppingBag className="text-gray-300" size={20} />
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-gray-400">This image will appear in the main hero section of the homepage.</p>
+                  </div>
+                  
+                  <Button 
+                    disabled={isSavingSettings}
+                    type="submit" 
+                    className="bg-black text-white hover:bg-gray-800"
+                  >
+                    {isSavingSettings ? "Saving..." : "Save Settings"}
+                  </Button>
+                </form>
+              </div>
             </div>
           )}
         </div>

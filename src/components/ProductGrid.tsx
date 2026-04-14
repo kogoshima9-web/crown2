@@ -56,7 +56,7 @@ export default function ProductGrid({ onBuyNow }: ProductGridProps) {
       name: "Crown Skincare Collection",
       description: "Complete natural goat milk skincare set",
       price: 300,
-      image_url: "https://storage.googleapis.com/static-content-prod/file-uploads/azgoederbfazp5qbfqdxav/1744425692000-859737.png",
+      image_url: "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/prodect.png",
       category: "Full Set"
     }
   ];
@@ -79,7 +79,7 @@ export default function ProductGrid({ onBuyNow }: ProductGridProps) {
               price: `${product.price} DA`
             })}
           >
-            <CardContent className="p-0 mb-6 overflow-hidden bg-[#F9F9F9] flex items-center justify-center p-8 aspect-square">
+            <CardContent className="p-0 mb-6 overflow-hidden bg-[#F8F9FA] flex items-center justify-center p-8 aspect-square rounded-[32px] shadow-sm group-hover:shadow-md transition-shadow duration-500">
               <img 
                 src={product.image_url} 
                 alt={product.name}
