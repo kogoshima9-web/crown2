@@ -49,6 +49,7 @@ interface Order {
   quantity: number;
   total_price: number;
   delivery_price: number;
+  delivery_type?: string;
   status: OrderStatus;
 }
 
@@ -283,6 +284,9 @@ export default function Admin() {
                             <div className="flex flex-col">
                               <span className="text-sm text-gray-900">{order.wilaya}</span>
                               <span className="text-xs text-gray-500">{order.baladia}</span>
+                              {order.delivery_type && (
+                                <span className="text-[10px] font-bold text-blue-600 mt-1 uppercase">{order.delivery_type}</span>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>

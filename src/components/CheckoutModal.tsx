@@ -18,18 +18,38 @@ interface CheckoutModalProps {
 }
 
 const WILAYAS = [
-  "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار", "البليدة", "البويرة",
-  "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة",
-  "سكيكدة", "سيدي بلعباس", "عنابة", "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة", "وهران",
-  "البيض", "إلـيزي", "برج بوعريريج", "بومرداس", "الطارف", "تندوف", "تيسمسيلت", "الوادي", "خنشلة", "سوق أهراس",
-  "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت", "غرداية", "غليزان", "تيميمون", "برج باجي مختار", "أولاد جلال",
-  "بني عباس", "عين صالح", "عين قزام", "تقرت", "جانت", "المغير", "المنيعة", "وادي سوف"
+  "01 أدرار", "02 الشلف", "03 الأغواط", "04 أم البواقي", "05 باتنة", "06 بجاية", "07 بسكرة", "08 بشار", "09 البليدة", "10 البويرة",
+  "11 تمنراست", "12 تبسة", "13 تلمسان", "14 تيارت", "15 تيزي وزو", "16 الجزائر", "17 الجلفة", "18 جيجل", "19 سطيف", "20 سعيدة",
+  "21 سكيكدة", "22 سيدي بلعباس", "23 عنابة", "24 قسنطينة", "25 المدية", "26 مستغانم", "27 المسيلة", "28 معسكر", "29 ورقلة", "30 وهران",
+  "31 البيض", "32 إلـيزي", "33 برج بوعريريج", "34 بومرداس", "35 الطارف", "36 تندوف", "37 تيسمسيلت", "38 الوادي", "39 خنشلة", "40 سوق أهراس",
+  "41 تيبازة", "42 ميلة", "43 عين الدفلى", "44 النعامة", "45 عين تموشنت", "46 غرداية", "47 غليزان", "48 تيميمون", "49 برج باجي مختار", "50 أولاد جلال",
+  "51 بني عباس", "52 عين صالح", "53 عين قزام", "54 تقرت", "55 جانت", "56 المغير", "57 المنيعة", "58 وادي سوف"
 ];
+
+const DELIVERY_PRICES: Record<string, { home: number; office: number }> = {
+  "01 أدرار": { home: 1400, office: 800 },
+  "02 الشلف": { home: 600, office: 400 },
+  "16 الجزائر": { home: 400, office: 300 },
+  "30 وهران": { home: 500, office: 400 },
+  "24 قسنطينة": { home: 500, office: 400 },
+  "09 البليدة": { home: 400, office: 300 },
+  "19 سطيف": { home: 500, office: 400 },
+  "23 عنابة": { home: 500, office: 400 },
+  "13 تلمسان": { home: 600, office: 450 },
+  "06 بجاية": { home: 500, office: 400 },
+};
+
+const getDeliveryPrice = (wilaya: string, type: 'home' | 'office' | null) => {
+  if (!wilaya || !type) return 0;
+  const prices = DELIVERY_PRICES[wilaya] || { home: 700, office: 500 };
+  return prices[type];
+};
 
 export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) {
   const [quantity, setQuantity] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [deliveryType, setDeliveryType] = useState<'home' | 'office' | null>(null);
   const [formData, setFormData] = useState({
     customer_name: "",
     phone_number: "",
@@ -41,13 +61,13 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
   if (!product) return null;
 
   const numericPrice = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 300;
-  const deliveryPrice = 500; // Example delivery price
-  const total = (numericPrice * quantity) + deliveryPrice;
+  const currentDeliveryPrice = getDeliveryPrice(formData.wilaya, deliveryType);
+  const total = (numericPrice * quantity) + currentDeliveryPrice;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.customer_name || !formData.phone_number || !formData.wilaya) {
-      alert("Please fill in all required fields");
+    if (!formData.customer_name || !formData.phone_number || !formData.wilaya || !deliveryType) {
+      alert("الرجاء ملء جميع الحقول المطلوبة واختيار نوع التوصيل");
       return;
     }
 
@@ -65,7 +85,8 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
             product_name: product.name,
             quantity: quantity,
             total_price: numericPrice * quantity,
-            delivery_price: deliveryPrice,
+            delivery_price: currentDeliveryPrice,
+            delivery_type: deliveryType === 'home' ? 'توصيل منزلي' : 'توصيل للمكتب',
             status: 'new'
           }
         ]);
@@ -82,6 +103,7 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
         address: ""
       });
       setQuantity(1);
+      setDeliveryType(null);
     } catch (error) {
       console.error('Error placing order:', error);
       alert("Failed to place order. Please check your Supabase connection.");
@@ -281,6 +303,56 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                         />
                       </div>
                     </div>
+
+                    {/* Delivery Options Section */}
+                    {formData.wilaya && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        className="space-y-4 pt-4 border-t border-gray-100"
+                      >
+                        <div className="flex items-center gap-2 font-bold text-gray-900">
+                          <Truck size={18} />
+                          <span>التوصيل</span>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <label 
+                            className={`flex items-center justify-between p-4 border cursor-pointer transition-all ${
+                              deliveryType === 'home' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => setDeliveryType('home')}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                deliveryType === 'home' ? 'border-black' : 'border-gray-300'
+                              }`}>
+                                {deliveryType === 'home' && <div className="w-2.5 h-2.5 bg-black rounded-full" />}
+                              </div>
+                              <span className="font-medium">توصيل منزلي</span>
+                            </div>
+                            <span className="font-bold">{getDeliveryPrice(formData.wilaya, 'home').toLocaleString()} DA</span>
+                          </label>
+
+                          <label 
+                            className={`flex items-center justify-between p-4 border cursor-pointer transition-all ${
+                              deliveryType === 'office' ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => setDeliveryType('office')}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                deliveryType === 'office' ? 'border-black' : 'border-gray-300'
+                              }`}>
+                                {deliveryType === 'office' && <div className="w-2.5 h-2.5 bg-black rounded-full" />}
+                              </div>
+                              <span className="font-medium">توصيل للمكتب</span>
+                            </div>
+                            <span className="font-bold">{getDeliveryPrice(formData.wilaya, 'office').toLocaleString()} DA</span>
+                          </label>
+                        </div>
+                      </motion.div>
+                    )}
                   </div>
 
                   {/* Summary Box */}
@@ -297,14 +369,18 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                         <Truck size={16} />
                         <span>سعر التوصيل</span>
                       </div>
-                      <span className="text-green-600 font-bold">{deliveryPrice.toLocaleString()} DA</span>
+                      <span className={`${deliveryType ? 'text-red-600' : 'text-gray-400'} font-bold`}>
+                        {deliveryType ? `${currentDeliveryPrice.toLocaleString()} DA` : "--"}
+                      </span>
                     </div>
                     <div className="pt-4 border-t border-gray-200 flex justify-between items-center">
                       <div className="flex items-center gap-2 font-bold text-gray-900">
                         <Calculator size={18} />
                         <span>المجموع</span>
                       </div>
-                      <span className="text-xl font-black text-gray-900">{total.toLocaleString()} DA</span>
+                      <span className="text-xl font-black text-gray-900">
+                        {deliveryType ? `${total.toLocaleString()} DA` : "--"}
+                      </span>
                     </div>
                   </div>
 
