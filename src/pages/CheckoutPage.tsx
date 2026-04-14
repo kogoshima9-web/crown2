@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion, useScroll, useTransform } from "motion/react";
 import { 
   User, 
   Phone, 
@@ -63,6 +63,11 @@ export default function CheckoutPage() {
     image: string;
     description: string;
   } | null>(location.state?.product || null);
+
+  const { scrollY } = useScroll();
+  const imageOpacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const imageScale = useTransform(scrollY, [0, 300], [1, 0.8]);
+  const imageTranslateY = useTransform(scrollY, [0, 300], [0, -50]);
 
   const [quantity, setQuantity] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -218,11 +223,11 @@ export default function CheckoutPage() {
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           
-          {/* Left Side: Product Image */}
+          {/* Left Side: Product Image (Desktop) */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="sticky top-24"
+            className="lg:sticky lg:top-24 hidden lg:block"
           >
             <div className="bg-gray-50 rounded-3xl overflow-hidden aspect-square flex items-center justify-center p-8 md:p-16">
               <img 
@@ -235,6 +240,25 @@ export default function CheckoutPage() {
             <div className="mt-8 text-center lg:text-left space-y-4">
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{product.name}</h1>
               <p className="text-gray-500 text-lg leading-relaxed">{product.description}</p>
+            </div>
+          </motion.div>
+
+          {/* Mobile Product Image (Fades away on scroll) */}
+          <motion.div 
+            style={{ opacity: imageOpacity, scale: imageScale, y: imageTranslateY }}
+            className="lg:hidden space-y-6"
+          >
+            <div className="bg-gray-50 rounded-3xl overflow-hidden aspect-square flex items-center justify-center p-8">
+              <img 
+                src={product.image} 
+                alt={product.name}
+                className="w-full h-full object-contain drop-shadow-2xl"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+              <p className="text-gray-500 leading-relaxed">{product.description}</p>
             </div>
           </motion.div>
 
