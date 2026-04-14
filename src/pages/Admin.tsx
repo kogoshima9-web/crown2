@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { 
   LayoutDashboard, 
@@ -78,6 +78,22 @@ export default function Admin() {
   useEffect(() => {
     fetchOrders();
     fetchProducts();
+
+    // Set up real-time listener for new orders
+    const ordersChannel = supabase
+      .channel('orders-realtime')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'orders' },
+        (payload) => {
+          setOrders((currentOrders) => [payload.new as Order, ...currentOrders]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(ordersChannel);
+    };
   }, []);
 
   async function fetchOrders() {
