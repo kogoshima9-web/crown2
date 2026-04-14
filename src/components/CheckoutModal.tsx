@@ -25,7 +25,12 @@ interface CheckoutModalProps {
 }
 
 const WILAYAS = [
-  "Alger", "Oran", "Constantine", "Annaba", "Blida", "Batna", "Sétif", "Chlef", "Djelfa", "Biskra"
+  "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار", "البليدة", "البويرة",
+  "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو", "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة",
+  "سكيكدة", "سيدي بلعباس", "عنابة", "قسنطينة", "المدية", "مستغانم", "المسيلة", "معسكر", "ورقلة", "وهران",
+  "البيض", "إلـيزي", "برج بوعريريج", "بومرداس", "الطارف", "تندوف", "تيسمسيلت", "الوادي", "خنشلة", "سوق أهراس",
+  "تيبازة", "ميلة", "عين الدفلى", "النعامة", "عين تموشنت", "غرداية", "غليزان", "تيميمون", "برج باجي مختار", "أولاد جلال",
+  "بني عباس", "عين صالح", "عين قزام", "تقرت", "جانت", "المغير", "المنيعة", "وادي سوف"
 ];
 
 export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) {
@@ -247,7 +252,7 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                           </SelectTrigger>
                           <SelectContent>
                             {WILAYAS.map(w => (
-                              <SelectItem key={w} value={w.toLowerCase()}>{w}</SelectItem>
+                              <SelectItem key={w} value={w}>{w}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
