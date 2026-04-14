@@ -4,13 +4,6 @@ import { X, User, Phone, MapPin, Building2, ShoppingCart, Truck, Calculator, Min
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { supabase } from "@/lib/supabase";
 
 interface CheckoutModalProps {
@@ -240,22 +233,21 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                     <div className="space-y-2">
                       <Label className="text-[13px] font-bold text-gray-700">الولاية *</Label>
                       <div className="relative">
-                        <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50 z-10">
+                        <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50 z-10 pointer-events-none">
                           <MapPin size={18} className="text-gray-400" />
                         </div>
-                        <Select 
+                        <select 
                           required
-                          onValueChange={(val) => setFormData({...formData, wilaya: val})}
+                          className="w-full pr-14 h-12 rounded-none border border-gray-200 focus:ring-1 focus:ring-black outline-none bg-white text-right appearance-none"
+                          value={formData.wilaya}
+                          onChange={(e) => setFormData({...formData, wilaya: e.target.value})}
+                          dir="rtl"
                         >
-                          <SelectTrigger className="pr-14 h-12 rounded-none border-gray-200 focus:ring-black">
-                            <SelectValue placeholder="Wilaya" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {WILAYAS.map(w => (
-                              <SelectItem key={w} value={w}>{w}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          <option value="" disabled>الولاية</option>
+                          {WILAYAS.map(w => (
+                            <option key={w} value={w}>{w}</option>
+                          ))}
+                        </select>
                       </div>
                     </div>
 
