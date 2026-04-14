@@ -94,11 +94,11 @@ export default function Hero({ onBuyNow }: HeroProps) {
           transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
           className="flex justify-center lg:justify-end relative"
         >
-          <div className="relative w-full max-w-[500px] aspect-square bg-[#F8F9FA] rounded-[40px] shadow-2xl flex items-center justify-center p-12 overflow-hidden">
+          <div className="relative w-full max-w-[500px] aspect-square bg-[#F8F9FA] rounded-[40px] shadow-2xl flex items-center justify-center overflow-hidden">
             <img 
               src={heroImage} 
               alt="Crown Skincare Collection"
-              className="w-full h-full object-contain drop-shadow-xl transform hover:scale-105 transition-transform duration-700"
+              className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
               referrerPolicy="no-referrer"
             />
           </div>
