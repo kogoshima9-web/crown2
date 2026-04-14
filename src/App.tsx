@@ -4,10 +4,12 @@ import ProductGrid from "./components/ProductGrid";
 import WhyUs from "./components/WhyUs";
 import Footer from "./components/Footer";
 import CheckoutModal from "./components/CheckoutModal";
+import Admin from "./pages/Admin";
 import { useState } from "react";
 import { Facebook } from "lucide-react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-export default function App() {
+function HomePage() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<{
     name: string;
@@ -20,10 +22,9 @@ export default function App() {
     if (product) {
       setSelectedProduct(product);
     } else {
-      // Default product for the Hero "Buy Now" button
       setSelectedProduct({
         name: "Crown Skincare Collection",
-        price: "3,000.00 DZD",
+        price: "300 DA",
         image: "https://storage.googleapis.com/static-content-prod/file-uploads/azgoederbfazp5qbfqdxav/1744425692000-859737.png",
         description: "Complete natural goat milk skincare set"
       });
@@ -39,7 +40,6 @@ export default function App() {
         <WhyUs />
         <ProductGrid onBuyNow={handleBuyNow} />
         
-        {/* Social Section */}
         <section className="max-w-7xl mx-auto px-4 py-20 text-center border-t border-gray-100">
           <div className="flex flex-col items-center gap-6">
             <h3 className="text-[12px] font-bold tracking-[0.3em] uppercase text-gray-500">Follow us</h3>
@@ -61,5 +61,16 @@ export default function App() {
         product={selectedProduct}
       />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

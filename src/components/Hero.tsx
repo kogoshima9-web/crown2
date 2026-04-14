@@ -43,22 +43,28 @@ export default function Hero({ onBuyNow }: HeroProps) {
             </div>
           </div>
           
-          <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
-            <Button 
-              onClick={onBuyNow}
-              className="bg-white text-black hover:bg-gray-100 h-12 px-8 rounded-none text-[12px] font-bold tracking-widest uppercase border border-white shadow-sm cursor-pointer"
-            >
-              Buy Now
-            </Button>
-            <a 
-              href="#why-us"
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "bg-transparent text-gray-900 border-gray-900 hover:bg-gray-900 hover:text-white h-12 px-8 rounded-none text-[12px] font-bold tracking-widest uppercase cursor-pointer flex items-center justify-center"
-              )}
-            >
-              Why Us
-            </a>
+          <div className="flex flex-wrap justify-center lg:justify-start items-center gap-6 pt-4">
+            <div className="flex flex-col items-center lg:items-start">
+              <span className="text-2xl md:text-3xl font-bold text-gray-900">300 DA</span>
+              <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Limited Offer</span>
+            </div>
+            <div className="flex gap-4">
+              <Button 
+                onClick={onBuyNow}
+                className="bg-white text-black hover:bg-gray-100 h-12 px-8 rounded-none text-[12px] font-bold tracking-widest uppercase border border-white shadow-sm cursor-pointer"
+              >
+                Buy Now
+              </Button>
+              <a 
+                href="#why-us"
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "bg-transparent text-gray-900 border-gray-900 hover:bg-gray-900 hover:text-white h-12 px-8 rounded-none text-[12px] font-bold tracking-widest uppercase cursor-pointer flex items-center justify-center"
+                )}
+              >
+                Why Us
+              </a>
+            </div>
           </div>
         </motion.div>
 

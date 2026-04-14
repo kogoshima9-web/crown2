@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, User, Phone, MapPin, Building2, ShoppingCart, Truck, Calculator, Minus, Plus, ShoppingBag } from "lucide-react";
+import { X, User, Phone, MapPin, Building2, ShoppingCart, Truck, Calculator, Minus, Plus, ShoppingBag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/lib/supabase";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -23,14 +24,64 @@ interface CheckoutModalProps {
   } | null;
 }
 
+const WILAYAS = [
+  "Alger", "Oran", "Constantine", "Annaba", "Blida", "Batna", "Sétif", "Chlef", "Djelfa", "Biskra"
+];
+
 export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) {
   const [quantity, setQuantity] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    customer_name: "",
+    phone_number: "",
+    wilaya: "",
+    baladia: "",
+    address: ""
+  });
 
   if (!product) return null;
 
-  // Extract numeric price for calculation (assuming format like "$24.00" or "3,000.00 DZD")
-  const numericPrice = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 3000;
-  const total = numericPrice * quantity;
+  const numericPrice = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 300;
+  const deliveryPrice = 500; // Example delivery price
+  const total = (numericPrice * quantity) + deliveryPrice;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.customer_name || !formData.phone_number || !formData.wilaya) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .insert([
+          {
+            customer_name: formData.customer_name,
+            phone_number: formData.phone_number,
+            wilaya: formData.wilaya,
+            baladia: formData.baladia,
+            address: formData.address,
+            product_name: product.name,
+            quantity: quantity,
+            total_price: numericPrice * quantity,
+            delivery_price: deliveryPrice,
+            status: 'new'
+          }
+        ]);
+
+      if (error) throw error;
+
+      alert("Order placed successfully!");
+      onClose();
+    } catch (error) {
+      console.error('Error placing order:', error);
+      alert("Failed to place order. Please check your Supabase connection.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -78,7 +129,7 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
 
             {/* Right Side: Order Form */}
             <div className="w-full md:w-1/2 p-6 md:p-10 overflow-y-auto">
-              <div className="max-w-md mx-auto space-y-8">
+              <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-8">
                 <div className="text-center space-y-2">
                   <h2 className="text-2xl font-bold tracking-tight text-gray-900 uppercase">استمارة الطلب</h2>
                   <p className="text-sm text-gray-500 font-medium">Order Form</p>
@@ -87,6 +138,7 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                 {/* Quantity Selector */}
                 <div className="flex items-center border border-gray-200 rounded-md overflow-hidden h-12">
                   <button 
+                    type="button"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="w-12 h-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors border-r border-gray-200"
                   >
@@ -96,6 +148,7 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                     {quantity}
                   </div>
                   <button 
+                    type="button"
                     onClick={() => setQuantity(quantity + 1)}
                     className="w-12 h-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors border-l border-gray-200"
                   >
@@ -111,7 +164,13 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                       <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50">
                         <User size={18} className="text-gray-400" />
                       </div>
-                      <Input placeholder="Nom complet" className="pr-14 h-12 rounded-none border-gray-200 focus-visible:ring-black" />
+                      <Input 
+                        required
+                        value={formData.customer_name}
+                        onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
+                        placeholder="Nom complet" 
+                        className="pr-14 h-12 rounded-none border-gray-200 focus-visible:ring-black" 
+                      />
                     </div>
                   </div>
 
@@ -126,7 +185,13 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                           DZ +213
                         </div>
                       </div>
-                      <Input placeholder="Numéro de téléphone" className="flex-1 h-12 rounded-none border-gray-200 border-r-0 focus-visible:ring-black" />
+                      <Input 
+                        required
+                        value={formData.phone_number}
+                        onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
+                        placeholder="Numéro de téléphone" 
+                        className="flex-1 h-12 rounded-none border-gray-200 border-r-0 focus-visible:ring-black" 
+                      />
                     </div>
                   </div>
 
@@ -136,14 +201,17 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                       <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50 z-10">
                         <MapPin size={18} className="text-gray-400" />
                       </div>
-                      <Select>
+                      <Select 
+                        required
+                        onValueChange={(val) => setFormData({...formData, wilaya: val})}
+                      >
                         <SelectTrigger className="pr-14 h-12 rounded-none border-gray-200 focus:ring-black">
                           <SelectValue placeholder="Wilaya" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="alger">Alger</SelectItem>
-                          <SelectItem value="oran">Oran</SelectItem>
-                          <SelectItem value="constantine">Constantine</SelectItem>
+                          {WILAYAS.map(w => (
+                            <SelectItem key={w} value={w.toLowerCase()}>{w}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -155,15 +223,13 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                       <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50 z-10">
                         <Building2 size={18} className="text-gray-400" />
                       </div>
-                      <Select>
-                        <SelectTrigger className="pr-14 h-12 rounded-none border-gray-200 focus:ring-black">
-                          <SelectValue placeholder="Baladia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="b1">Baladia 1</SelectItem>
-                          <SelectItem value="b2">Baladia 2</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Input 
+                        required
+                        value={formData.baladia}
+                        onChange={(e) => setFormData({...formData, baladia: e.target.value})}
+                        placeholder="Baladia" 
+                        className="pr-14 h-12 rounded-none border-gray-200 focus-visible:ring-black" 
+                      />
                     </div>
                   </div>
 
@@ -173,7 +239,12 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                       <div className="absolute inset-y-0 right-0 w-12 flex items-center justify-center border-l border-gray-200 bg-gray-50">
                         <MapPin size={18} className="text-gray-400" />
                       </div>
-                      <Input placeholder="Adresse de Livraison" className="pr-14 h-12 rounded-none border-gray-200 focus-visible:ring-black" />
+                      <Input 
+                        value={formData.address}
+                        onChange={(e) => setFormData({...formData, address: e.target.value})}
+                        placeholder="Adresse de Livraison" 
+                        className="pr-14 h-12 rounded-none border-gray-200 focus-visible:ring-black" 
+                      />
                     </div>
                   </div>
                 </div>
@@ -185,30 +256,38 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
                       <ShoppingCart size={16} />
                       <span>سعر المنتج</span>
                     </div>
-                    <span className="font-bold">{numericPrice.toLocaleString()} DZD</span>
+                    <span className="font-bold">{(numericPrice * quantity).toLocaleString()} DA</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <div className="flex items-center gap-2 text-gray-600">
                       <Truck size={16} />
                       <span>سعر التوصيل</span>
                     </div>
-                    <span className="text-red-500 font-bold">--</span>
+                    <span className="text-green-600 font-bold">{deliveryPrice.toLocaleString()} DA</span>
                   </div>
                   <div className="pt-4 border-t border-gray-200 flex justify-between items-center">
                     <div className="flex items-center gap-2 font-bold text-gray-900">
                       <Calculator size={18} />
                       <span>المجموع</span>
                     </div>
-                    <span className="text-xl font-black text-gray-900">{total.toLocaleString()} DZD</span>
+                    <span className="text-xl font-black text-gray-900">{total.toLocaleString()} DA</span>
                   </div>
                 </div>
 
                 {/* Submit Button */}
-                <Button className="w-full h-14 bg-black text-white hover:bg-gray-900 rounded-none text-lg font-bold flex items-center justify-center gap-3 group">
-                  <ShoppingBag size={20} className="group-hover:scale-110 transition-transform" />
+                <Button 
+                  disabled={isSubmitting}
+                  type="submit"
+                  className="w-full h-14 bg-black text-white hover:bg-gray-900 rounded-none text-lg font-bold flex items-center justify-center gap-3 group"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="animate-spin" size={20} />
+                  ) : (
+                    <ShoppingBag size={20} className="group-hover:scale-110 transition-transform" />
+                  )}
                   <span>إشتري الآن</span>
                 </Button>
-              </div>
+              </form>
             </div>
           </motion.div>
         </div>
