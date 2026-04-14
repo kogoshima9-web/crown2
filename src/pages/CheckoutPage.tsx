@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { motion } from "motion/react";
 import { 
   User, 
@@ -55,17 +55,20 @@ const getDeliveryPrice = (wilaya: string, type: 'home' | 'office' | null) => {
 export default function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const product = location.state?.product || {
-    name: "Crown Skincare Collection",
-    price: "300 DA",
-    image: "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/prodect.png",
-    description: "Complete natural goat milk skincare set"
-  };
+  const { productName } = useParams();
+  
+  const [product, setProduct] = useState<{
+    name: string;
+    price: string;
+    image: string;
+    description: string;
+  } | null>(location.state?.product || null);
 
   const [quantity, setQuantity] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [deliveryType, setDeliveryType] = useState<'home' | 'office' | null>(null);
+  const [loading, setLoading] = useState(!product);
   const [formData, setFormData] = useState({
     customer_name: "",
     phone_number: "",
@@ -76,14 +79,45 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    async function fetchProduct() {
+      if (!product && productName) {
+        const decodedName = decodeURIComponent(productName);
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('name', decodedName)
+          .single();
+        
+        if (!error && data) {
+          setProduct({
+            name: data.name,
+            price: `${data.price} DA`,
+            image: data.image_url,
+            description: data.description
+          });
+        } else if (decodedName === "Crown Skincare Collection") {
+          setProduct({
+            name: "Crown Skincare Collection",
+            price: "300 DA",
+            image: "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/Gemini_Generated_Image_7f0nor7f0nor7f0n.png",
+            description: "Complete natural goat milk skincare set"
+          });
+        }
+        setLoading(false);
+      }
+    }
+    
+    fetchProduct();
+  }, [product, productName]);
 
-  const numericPrice = parseFloat(product.price.replace(/[^0-9.]/g, "")) || 300;
+  const numericPrice = product ? parseFloat(product.price.replace(/[^0-9.]/g, "")) || 300 : 0;
   const currentDeliveryPrice = getDeliveryPrice(formData.wilaya, deliveryType);
   const total = (numericPrice * quantity) + currentDeliveryPrice;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!product) return;
     if (!formData.customer_name || !formData.phone_number || !formData.wilaya || !deliveryType) {
       alert("الرجاء ملء جميع الحقول المطلوبة واختيار نوع التوصيل");
       return;
@@ -119,6 +153,31 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <p className="text-gray-500 animate-pulse">Loading product...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header />
+        <main className="flex-1 flex flex-col items-center justify-center p-4 space-y-6">
+          <h2 className="text-2xl font-bold text-gray-900">Product not found</h2>
+          <Button onClick={() => navigate('/')} className="bg-black text-white">Back to Home</Button>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (isSuccess) {
     return (

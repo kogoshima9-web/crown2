@@ -12,14 +12,15 @@ function HomePage() {
   const navigate = useNavigate();
 
   const handleBuyNow = (product?: any) => {
+    const productName = product?.name || "Crown Skincare Collection";
     const productData = product || {
       name: "Crown Skincare Collection",
       price: "300 DA",
-      image: "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/prodect.png",
+      image: "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/Gemini_Generated_Image_7f0nor7f0nor7f0n.png",
       description: "Complete natural goat milk skincare set"
     };
     
-    navigate('/checkout', { state: { product: productData } });
+    navigate(`/${encodeURIComponent(productName)}`, { state: { product: productData } });
   };
 
   return (
@@ -56,6 +57,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/:productName" element={<CheckoutPage />} />
       </Routes>
     </BrowserRouter>
   );
