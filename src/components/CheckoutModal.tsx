@@ -104,9 +104,9 @@ export default function CheckoutModal({ isOpen, onClose, product }: CheckoutModa
       });
       setQuantity(1);
       setDeliveryType(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error placing order:', error);
-      alert("Failed to place order. Please check your Supabase connection.");
+      alert(`Failed to place order: ${error.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
