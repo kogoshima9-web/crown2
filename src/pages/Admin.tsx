@@ -68,6 +68,7 @@ export default function Admin() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSavingProduct, setIsSavingProduct] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
@@ -130,21 +131,52 @@ export default function Admin() {
     if (!newProduct.name || !newProduct.price) return;
 
     setIsSavingProduct(true);
-    const { error } = await supabase
-      .from('products')
-      .insert([{
-        ...newProduct,
-        price: parseFloat(newProduct.price)
-      }]);
+    
+    if (editingProductId) {
+      const { error } = await supabase
+        .from('products')
+        .update({
+          ...newProduct,
+          price: parseFloat(newProduct.price)
+        })
+        .eq('id', editingProductId);
 
-    if (error) {
-      console.error('Error saving product:', error);
-      alert('Error saving product');
+      if (error) {
+        console.error('Error updating product:', error);
+        alert('Error updating product');
+      } else {
+        setNewProduct({ name: "", price: "", description: "", image_url: "", category: "Full Set" });
+        setEditingProductId(null);
+        fetchProducts();
+      }
     } else {
-      setNewProduct({ name: "", price: "", description: "", image_url: "", category: "Full Set" });
-      fetchProducts();
+      const { error } = await supabase
+        .from('products')
+        .insert([{
+          ...newProduct,
+          price: parseFloat(newProduct.price)
+        }]);
+
+      if (error) {
+        console.error('Error saving product:', error);
+        alert('Error saving product');
+      } else {
+        setNewProduct({ name: "", price: "", description: "", image_url: "", category: "Full Set" });
+        fetchProducts();
+      }
     }
     setIsSavingProduct(false);
+  }
+
+  function handleEditProduct(product: Product) {
+    setNewProduct({
+      name: product.name,
+      price: product.price.toString(),
+      description: product.description || "",
+      image_url: product.image_url || "",
+      category: product.category || "Full Set"
+    });
+    setEditingProductId(product.id);
   }
 
   async function deleteProduct(id: string) {
@@ -350,11 +382,11 @@ export default function Admin() {
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Add Product Form */}
+                {/* Add/Edit Product Form */}
                 <form onSubmit={handleAddProduct} className="lg:col-span-1 bg-white p-6 rounded-xl border border-gray-200 h-fit space-y-6">
                   <h4 className="font-bold text-gray-900 flex items-center gap-2">
-                    <Plus size={18} />
-                    Add New Product
+                    {editingProductId ? <Settings size={18} /> : <Plus size={18} />}
+                    {editingProductId ? "Edit Product" : "Add New Product"}
                   </h4>
                   
                   <div className="space-y-4">
@@ -398,8 +430,21 @@ export default function Admin() {
                       type="submit" 
                       className="w-full bg-black text-white hover:bg-gray-800"
                     >
-                      {isSavingProduct ? "Saving..." : "Save Product"}
+                      {isSavingProduct ? "Saving..." : (editingProductId ? "Update Product" : "Save Product")}
                     </Button>
+                    {editingProductId && (
+                      <Button 
+                        type="button"
+                        variant="ghost"
+                        className="w-full"
+                        onClick={() => {
+                          setEditingProductId(null);
+                          setNewProduct({ name: "", price: "", description: "", image_url: "", category: "Full Set" });
+                        }}
+                      >
+                        Cancel Edit
+                      </Button>
+                    )}
                   </div>
                 </form>
 
@@ -427,14 +472,24 @@ export default function Admin() {
                           <h5 className="font-bold text-gray-900">{product.name}</h5>
                           <p className="text-xs text-gray-500">{product.price} DA • Active</p>
                         </div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => deleteProduct(product.id)}
-                        >
-                          Delete
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={() => handleEditProduct(product)}
+                          >
+                            Edit
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => deleteProduct(product.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </div>
                     ))
                   )}
