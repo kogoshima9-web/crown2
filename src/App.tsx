@@ -3,33 +3,23 @@ import Hero from "./components/Hero";
 import ProductGrid from "./components/ProductGrid";
 import WhyUs from "./components/WhyUs";
 import Footer from "./components/Footer";
-import CheckoutModal from "./components/CheckoutModal";
 import Admin from "./pages/Admin";
-import { useState } from "react";
+import CheckoutPage from "./pages/CheckoutPage";
 import { Facebook } from "lucide-react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
 function HomePage() {
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<{
-    name: string;
-    price: string;
-    image: string;
-    description: string;
-  } | null>(null);
+  const navigate = useNavigate();
 
   const handleBuyNow = (product?: any) => {
-    if (product) {
-      setSelectedProduct(product);
-    } else {
-      setSelectedProduct({
-        name: "Crown Skincare Collection",
-        price: "300 DA",
-        image: "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/prodect.png",
-        description: "Complete natural goat milk skincare set"
-      });
-    }
-    setIsCheckoutOpen(true);
+    const productData = product || {
+      name: "Crown Skincare Collection",
+      price: "300 DA",
+      image: "https://qbplkodflyuocfawqjga.supabase.co/storage/v1/object/public/1/prodect.png",
+      description: "Complete natural goat milk skincare set"
+    };
+    
+    navigate('/checkout', { state: { product: productData } });
   };
 
   return (
@@ -55,11 +45,6 @@ function HomePage() {
         </section>
       </main>
       <Footer />
-      <CheckoutModal 
-        isOpen={isCheckoutOpen} 
-        onClose={() => setIsCheckoutOpen(false)} 
-        product={selectedProduct}
-      />
     </div>
   );
 }
@@ -70,6 +55,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
       </Routes>
     </BrowserRouter>
   );
